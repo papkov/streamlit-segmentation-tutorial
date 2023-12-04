@@ -13,13 +13,14 @@ def segmentation_demo():
     model_weights = st.file_uploader("Choose a model file")
     image = st.file_uploader("Choose an image")
 
-    if model_weights is not None and image is not None:
-        image = Image.open(self.images[i]).convert("RGB")
+    if image is not None:
+        image = Image.open(image).convert("RGB")
         st.image(image, "Uploaded image")
 
+    if model_weights is not None:
         model = torch.load_state_dict(model_weights)
         model = smp.Unet(
-            encoder_name="resnet34",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_name="resnet18",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
             in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=1,                      # model output channels (number of classes in your dataset)
@@ -28,11 +29,13 @@ def segmentation_demo():
 
         transforms = v2.Compose([
             v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=mean, std=std),
+            v2.Normalize(mean=(0.485, 0.456, 0.406), 
+                         std=(0.229, 0.224, 0.225)),
         ])
 
-        mask = model(transforms(image)).numpy()
-        st.image(mask[0], "Uploaded image")
+        if image is not None:
+            mask = model(transforms(image)).numpy()
+            st.image(mask[0], "Uploaded image")
 
 
 st.set_page_config(page_title="Segmentation Demo", page_icon="🔬")
