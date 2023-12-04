@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit.hello.utils import show_code
-
+import numpy as np
 import torch
 from torchvision.transforms import v2
 from torchvision import tv_tensors
@@ -34,8 +34,10 @@ def segmentation_demo():
         ])
 
         if image is not None:
-            mask = model(transforms(image)).numpy()
-            st.image(mask[0], "Uploaded image")
+            tensor = transforms(tv_tensors.Image(image))[None, ...]
+            with torch.no_grad():
+                mask = model(tensor).numpy().clip(0, 1)
+            st.image(mask[0, 0], "Predicted mask")
 
 
 st.set_page_config(page_title="Segmentation Demo", page_icon="🔬")
