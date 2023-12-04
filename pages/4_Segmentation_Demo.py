@@ -24,7 +24,8 @@ def segmentation_demo():
             in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=1,                      # model output channels (number of classes in your dataset)
         )
-        model.load_state_dict(torch.load(model_weights))
+        model.load_state_dict(torch.load(model_weights,
+                                         map_location="cpu"))
         model.eval()
 
 
